@@ -70,6 +70,7 @@
 #define IR_DEC_DURATN3_MAX			GENMASK(25, 16)
 #define IR_DEC_DURATN3_MIN			GENMASK(9, 0)
 #define IR_DEC_FRAME1				0x2c
+#define IR_DEC_IRQ_CTL				0x48
 
 #define FRAME_MSB_FIRST				true
 #define FRAME_LSB_FIRST				false
@@ -159,6 +160,7 @@ struct meson_ir_protocol {
 struct meson_ir_param {
 	bool support_hw_decoder;
 	unsigned int max_register;
+	u32 irq_ctl_val;
 };
 
 struct meson_ir {
@@ -389,6 +391,10 @@ static int meson_ir_hw_decoder_init(struct rc_dev *dev, u64 *rc_type)
 	regmap_update_bits(ir->reg, IR_DEC_DURATN3,
 			   IR_DEC_DURATN3_MAX | IR_DEC_DURATN3_MIN, regval);
 
+	/* Vendor IRQ control (SC2/AH212) - required for IRQ line to assert */
+	if (ir->param->irq_ctl_val)
+		regmap_write(ir->reg, IR_DEC_IRQ_CTL, ir->param->irq_ctl_val);
+
 	/* Reset ir decoder and enable decode */
 	regmap_update_bits(ir->reg, IR_DEC_REG1, IR_DEC_REG1_RESET,
 			   IR_DEC_REG1_RESET);
@@ -605,7 +611,9 @@ static const struct meson_ir_param meson8b_ir_param = {
 
 static const struct meson_ir_param meson_s4_ir_param = {
 	.support_hw_decoder = true,
-	.max_register = IR_DEC_FRAME1,
+	.max_register = IR_DEC_IRQ_CTL + 3,
+	/* SC2/AH212 decoder needs vendor IRQ control value (from CE meson_ir) */
+	.irq_ctl_val = 0xCFA10BB8,
 };
 
 static const struct of_device_id meson_ir_match[] = {
