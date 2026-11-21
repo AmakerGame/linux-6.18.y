@@ -1215,14 +1215,14 @@
 		usb: usb@fe03a000 {
 			compatible = "amlogic,meson-g12a-usb-ctrl";
 			reg = <0x0 0xfe03a000 0x0 0xa0>;
-			interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <GIC_SPI 129 IRQ_TYPE_LEVEL_HIGH>;
 			#address-cells = <2>;
 			#size-cells = <2>;
 			ranges;
 			clocks = <&clkc CLKID_USB>;
 			resets = <&reset RESET_USBCTRL>;
 			power-domains = <&pwrc PWRC_SC2_USB_COMB_ID>;
-			dr_mode = "host";
+			dr_mode = "otg";
 			phys = <&usb2_phy0>, <&usb2_phy1>,
 			       <&usb3_pcie_phy PHY_TYPE_USB3>;
 			phy-names = "usb2-phy0", "usb2-phy1", "usb3-phy0";
