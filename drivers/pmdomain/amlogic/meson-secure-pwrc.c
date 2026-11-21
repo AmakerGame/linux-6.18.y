@@ -13,6 +13,7 @@
 #include <dt-bindings/power/meson-a1-power.h>
 #include <dt-bindings/power/amlogic,c3-pwrc.h>
 #include <dt-bindings/power/meson-s4-power.h>
+#include <dt-bindings/power/amlogic,sc2-pwrc.h>
 #include <dt-bindings/power/amlogic,t7-pwrc.h>
 #include <dt-bindings/power/amlogic,a4-pwrc.h>
 #include <dt-bindings/power/amlogic,a5-pwrc.h>
@@ -264,6 +265,21 @@ static const struct meson_secure_pwrc_domain_desc s4_pwrc_domains[] = {
 	SEC_PD(S4_AUDIO,	0),
 };
 
+static const struct meson_secure_pwrc_domain_desc sc2_pwrc_domains[] = {
+	SEC_PD(SC2_DSP,		0),
+	SEC_PD(SC2_DOS_HCODEC,	0),
+	SEC_PD(SC2_DOS_HEVC,	0),
+	SEC_PD(SC2_DOS_VDEC,	0),
+	SEC_PD(SC2_DOS_WAVE,	0),
+	SEC_PD(SC2_VPU_HDMI,	0),
+	SEC_PD(SC2_USB_COMB,	0),
+	SEC_PD(SC2_PCIE,	0),
+	SEC_PD(SC2_GE2D,	0),
+	/* ETH is for ethernet online wakeup, and should be always on */
+	SEC_PD(SC2_ETH,		GENPD_FLAG_ALWAYS_ON),
+	SEC_PD(SC2_AUDIO,	0),
+};
+
 static const struct meson_secure_pwrc_domain_desc s6_pwrc_domains[] = {
 	SEC_PD(S6_DSPA,		0),
 	SEC_PD(S6_DOS_HEVC,	0),
@@ -500,6 +516,11 @@ static const struct meson_secure_pwrc_domain_data meson_secure_s4_pwrc_data = {
 	.count = ARRAY_SIZE(s4_pwrc_domains),
 };
 
+static const struct meson_secure_pwrc_domain_data meson_secure_sc2_pwrc_data = {
+	.domains = sc2_pwrc_domains,
+	.count = ARRAY_SIZE(sc2_pwrc_domains),
+};
+
 static const struct meson_secure_pwrc_domain_data amlogic_secure_s6_pwrc_data = {
 	.domains = s6_pwrc_domains,
 	.count = ARRAY_SIZE(s6_pwrc_domains),
@@ -544,6 +565,10 @@ static const struct of_device_id meson_secure_pwrc_match_table[] = {
 	{
 		.compatible = "amlogic,meson-s4-pwrc",
 		.data = &meson_secure_s4_pwrc_data,
+	},
+	{
+		.compatible = "amlogic,sc2-pwrc",
+		.data = &meson_secure_sc2_pwrc_data,
 	},
 	{
 		.compatible = "amlogic,s6-pwrc",

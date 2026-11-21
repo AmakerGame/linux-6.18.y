@@ -212,18 +212,34 @@ static int amlogic_thermal_probe_syscon(struct platform_device *pdev,
 					struct amlogic_thermal *pdata)
 {
 	struct device *dev = &pdev->dev;
+	struct resource *res;
+	void __iomem *trim_reg;
 	int ver;
 
-	pdata->sec_ao_map =
-		syscon_regmap_lookup_by_phandle(pdev->dev.of_node,
-						"amlogic,ao-secure");
-	if (IS_ERR(pdata->sec_ao_map)) {
-		dev_err(dev, "syscon regmap lookup failed.\n");
-		return PTR_ERR(pdata->sec_ao_map);
-	}
+	/*
+	 * On SC2 the trim_info register is not part of ao-secure. The vendor
+	 * driver specifies its location with a second memory resource, so
+	 * let's mimic this approach.
+	 */
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+	if (res) {
+		trim_reg = devm_ioremap_resource(dev, res);
+		if (IS_ERR(trim_reg))
+			return PTR_ERR(trim_reg);
 
-	regmap_read(pdata->sec_ao_map, pdata->data->u_efuse_off,
-		    &pdata->trim_info);
+		pdata->trim_info = readl(trim_reg);
+	} else {
+		pdata->sec_ao_map =
+			syscon_regmap_lookup_by_phandle(pdev->dev.of_node,
+							"amlogic,ao-secure");
+		if (IS_ERR(pdata->sec_ao_map)) {
+			dev_err(dev, "syscon regmap lookup failed.\n");
+			return PTR_ERR(pdata->sec_ao_map);
+		}
+
+		regmap_read(pdata->sec_ao_map, pdata->data->u_efuse_off,
+			    &pdata->trim_info);
+	}
 
 	ver = TSENSOR_TRIM_VERSION(pdata->trim_info);
 
