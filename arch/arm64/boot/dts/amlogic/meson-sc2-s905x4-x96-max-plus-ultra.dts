@@ -461,6 +461,15 @@
 		openvfd_display_type = <0x00010000>;
 		status = "okay";
 	};
+
+	aml_wifi {
+		compatible = "amlogic,aml-wifi";
+		status = "okay";
+		irq_trigger_type = "GPIO_IRQ_LOW";
+		interrupt-gpios = <&gpio GPIOX_7 0>;
+		power_on-gpios = <&gpio GPIOX_6 0>;
+		interrupts-extended = <&gpio_intc GPIOX_7 IRQ_TYPE_LEVEL_LOW>;
+	};
 };
 
 &pwm_ef {
@@ -529,7 +538,13 @@
 	no-mmc;
 	vmmc-supply = <&vddao_3v3>;
 	vqmmc-supply = <&vddio_ao1v8>;
+	mmc-pwrseq = <&sdio_pwrseq>;
 	status = "okay";
+
+	wifi@1 {
+		compatible = "amlogic,w1";
+		reg = <1>;
+	};
 };
 
 &nand {
